@@ -32,7 +32,6 @@ $logs = $stmt->fetchAll();
                         <th>MODULE</th>
                         <th>DETAILS</th>
                         <th>DATE/TIME</th>
-                        <th>IP ADDRESS</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,7 +62,6 @@ $logs = $stmt->fetchAll();
                             <td><?php echo escape($log['module']); ?></td>
                             <td style="max-width: 300px; word-wrap: break-word;"><?php echo escape($log['details']); ?></td>
                             <td><?php echo date('Y-m-d H:i:s', strtotime($log['created_at'])); ?></td>
-                            <td><code><?php echo escape($log['ip_address']); ?></code></td>
                         </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>

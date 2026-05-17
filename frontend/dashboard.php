@@ -47,7 +47,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
     <div class="row mb-4">
         <div class="col-12">
             <div class="welcome-card">
-                <h4 class="mb-2">🏫 Stock Flow Inventory System</h4>
+                <h4 class="mb-2">School Supply Inventory System</h4>
                 <p class="mb-0">Manage, track, and monitor all school supplies efficiently</p>
             </div>
         </div>
@@ -63,7 +63,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
                         <h2 class="mb-0"><?php echo $stats['total_supplies']; ?></h2>
                         <small>different items</small>
                     </div>
-                    <div class="stat-icon bg-primary"><i class="bi bi-backpack"></i></div>
+                    <div class="stat-icon"><i class="bi bi-backpack"></i></div>
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
                         <h2 class="mb-0"><?php echo number_format($stats['total_units']); ?></h2>
                         <small>items in stock</small>
                     </div>
-                    <div class="stat-icon bg-success"><i class="bi bi-box-seam"></i></div>
+                    <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
                 </div>
             </div>
         </div>
@@ -87,7 +87,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
                         <h2 class="mb-0"><?php echo $stats['total_categories']; ?></h2>
                         <small>supply types</small>
                     </div>
-                    <div class="stat-icon bg-info"><i class="bi bi-tags"></i></div>
+                    <div class="stat-icon"><i class="bi bi-tags"></i></div>
                 </div>
             </div>
         </div>
@@ -99,7 +99,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
                         <h2 class="mb-0 <?php echo $stats['low_stock'] > 0 ? 'text-warning' : ''; ?>"><?php echo $stats['low_stock']; ?></h2>
                         <small>needs reorder</small>
                     </div>
-                    <div class="stat-icon bg-warning"><i class="bi bi-exclamation-triangle"></i></div>
+                    <div class="stat-icon"><i class="bi bi-exclamation-triangle"></i></div>
                 </div>
             </div>
         </div>
@@ -175,7 +175,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
     <div class="row g-4">
         <div class="col-md-6">
             <div class="stat-card">
-                <h5>📦 Recent Stock Received</h5>
+                <h5>Recent Stock Received</h5>
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
@@ -199,7 +199,7 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
         </div>
         <div class="col-md-6">
             <div class="stat-card">
-                <h5>📤 Recent Items Issued</h5>
+                <h5>Recent Items Issued</h5>
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>

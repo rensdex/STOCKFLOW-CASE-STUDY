@@ -21,7 +21,7 @@ body {
     top: 0;
     height: 100vh;
     width: 280px;
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    background: linear-gradient(180deg, #13157e);
     color: #e2e8f0;
     transition: all 0.3s ease;
     z-index: 1000;
@@ -55,7 +55,7 @@ body {
 .sidebar-logo-icon {
     width: 55px;
     height: 55px;
-    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    background: linear-gradient(135deg, #13157e);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -127,7 +127,7 @@ body {
 .nav-item.active {
     background: rgba(59, 130, 246, 0.2);
     color: white;
-    border-right: 3px solid #3b82f6;
+    border-right: 3px solid #13157e;
 }
 
 .nav-item i {
@@ -173,7 +173,7 @@ body {
 }
 
 .breadcrumb-item a {
-    color: #3b82f6;
+    color: #13157e;
     text-decoration: none;
 }
 
@@ -190,7 +190,7 @@ body {
 .user-avatar {
     width: 42px;
     height: 42px;
-    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    background: linear-gradient(135deg, #13157e);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -268,7 +268,7 @@ body {
 }
 
 .welcome-card .text-primary {
-    color: #38bdf8 !important;
+    color: #13157e !important;
 }
 .stat-card-compact {
     background: white;
@@ -346,7 +346,7 @@ body {
    BUTTONS
    ============================================ */
 .btn-primary-custom {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    background: linear-gradient(135deg, #13157e);
     border: none;
     padding: 0.6rem 1.5rem;
     border-radius: 12px;
@@ -392,7 +392,7 @@ body {
 }
 
 .badge-info {
-    background: #06b6d4;
+    background: #13157e;
     padding: 0.25rem 0.75rem;
     border-radius: 30px;
     font-size: 0.7rem;
@@ -428,13 +428,13 @@ body {
 .pagination .page-link {
     border-radius: 10px;
     margin: 0 3px;
-    color: #3b82f6;
+    color: #13157e;
     border: 1px solid #e2e8f0;
 }
 
 .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    border-color: #3b82f6;
+    background: linear-gradient(135deg, #13157e);
+    border-color: #13157e;
     color: white;
 }
 
@@ -521,7 +521,7 @@ body {
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #3b82f6;
+    border-color: #13157e;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 

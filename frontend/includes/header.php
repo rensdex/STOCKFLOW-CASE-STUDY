@@ -37,7 +37,7 @@ $base_path = '';
             top: 0;
             height: 100vh;
             width: 280px;
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient( #13157e);
             color: #e2e8f0;
             z-index: 1000;
             overflow-y: auto;
@@ -46,14 +46,27 @@ $base_path = '';
             padding: 1.5rem;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             text-align: center;
+            background:white;
+        
+        }
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         .sidebar-brand h3 {
             font-weight: 700;
             font-size: 1.5rem;
-            color: white;
+            color: black;
+            margin-bottom: 0;
         }
-        .sidebar-brand .stock { color: #f1f5f9; }
-        .sidebar-brand .flow { color: #38bdf8; }
+        .sidebar-brand .stock { color: #000000; }
+        .sidebar-brand .flow { color: #13157e; }
+        .logo-image {
+            width: 45px;
+            height: auto;
+        }
         .nav-item {
             padding: 0.6rem 1.5rem;
             display: flex;
@@ -83,7 +96,7 @@ $base_path = '';
         .page-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #0f172a;
+            color: #13157e;
         }
         .user-info {
             display: flex;
@@ -93,7 +106,7 @@ $base_path = '';
         .user-avatar {
             width: 42px;
             height: 42px;
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            background: linear-gradient(135deg, #13157e);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -102,7 +115,7 @@ $base_path = '';
             font-weight: 600;
         }
         .welcome-card {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #13157e );
             border-radius: 20px;
             padding: 1.5rem 1.75rem;
             color: white;
@@ -126,7 +139,7 @@ $base_path = '';
             display: block;
         }
         .btn-primary-custom {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            background: linear-gradient(135deg, #13157e);
             border: none;
             padding: 0.6rem 1.5rem;
             border-radius: 12px;
@@ -144,13 +157,14 @@ $base_path = '';
         <div class="sidebar-header">
             <div class="logo-wrapper">
                 <div class="sidebar-brand">
+                    <!-- Logo on the left side -->
+                    <img src="/STOCKFLOW-CASE-STUDY/frontend/assets/images/logo3.png" alt="StockFlow Logo" class="logo-image" onerror="this.style.display='none'">
                     <h3>
-                        
-                        <span class="stock">STOCK</span><span class="flow">FLOW</span>
+                        <span class="stock">StockFlow</span>
                     </h3>
                 </div>
             </div>
-            <p style="color: #94a3b8; font-size: 0.7rem;">Inventory Management System</p>
+            <p style="color: #000000; font-size: 0.7rem;">School Supply Inventory System</p>
         </div>
         
         <div class="nav-menu">
