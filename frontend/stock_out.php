@@ -15,42 +15,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $pdo->beginTransaction();
     
+    // Check if enough stock
+    $checkStmt = $pdo->prepare("SELECT quantity, supply_name FROM school_supplies WHERE id = ?");
+    $checkStmt->execute([$_POST['supply_id']]);
+    $supply = $checkStmt->fetch();
     
-        // Check if enough stock
-        $checkStmt = $pdo->prepare("SELECT quantity, supply_name FROM school_supplies WHERE id = ?");
-        $checkStmt->execute([$_POST['supply_id']]);
-        $supply = $checkStmt->fetch();
-        
-        if ($supply['quantity'] < $_POST['quantity']) {
-            throw new Exception("Insufficient stock! Available: " . $supply['quantity']);
-        }
-        
-        $stmt = $pdo->prepare("INSERT INTO stock_out (transaction_no, supply_id, quantity, issued_to, remarks, issued_by, date_issued) VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
-        $stmt->execute([$transaction_no, $_POST['supply_id'], $_POST['quantity'], $_POST['issued_to'], $_POST['remarks'] ?? '', $_SESSION['user_id']]);
-        
-        $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity - ? WHERE id = ?");
-        $updateStmt->execute([$_POST['quantity'], $_POST['supply_id']]);
-        
-        $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
-            WHEN quantity <= 0 THEN 'Out of Stock'
-            WHEN quantity <= low_stock_threshold THEN 'Low Stock'
-            ELSE 'In Stock'
-        END WHERE id = ?");
-        $statusStmt->execute([$_POST['supply_id']]);
-        
-        $notifStmt = $pdo->prepare("INSERT INTO notifications (title, message, type) VALUES (?, ?, 'info')");
-        $notifStmt->execute(['📤 Stock Released', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' issued to ' . $_POST['issued_to']]);
-        
-        triggerStockUpdate('stock_out', $supply['supply_name'], $_POST['quantity']);
-        triggerRealtimeNotification('Stock Released', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' issued', 'warning');
-        
-        $pdo->commit();
-        
-        $_SESSION['flash_success'] = "Stock-Out recorded successfully";
+    if ($supply['quantity'] < $_POST['quantity']) {
+        $pdo->rollBack();
+        $_SESSION['flash_error'] = "Insufficient stock! Available: " . $supply['quantity'];
         header("Location: index.php?page=stock_out");
         exit();
-        
-
+    }
+    
+    $stmt = $pdo->prepare("INSERT INTO stock_out (transaction_no, supply_id, quantity, issued_to, remarks, issued_by, date_issued) VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
+    $stmt->execute([$transaction_no, $_POST['supply_id'], $_POST['quantity'], $_POST['issued_to'], $_POST['remarks'] ?? '', $_SESSION['user_id']]);
+    
+    $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity - ? WHERE id = ?");
+    $updateStmt->execute([$_POST['quantity'], $_POST['supply_id']]);
+    
+    $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
+        WHEN quantity <= 0 THEN 'Out of Stock'
+        WHEN quantity <= low_stock_threshold THEN 'Low Stock'
+        ELSE 'In Stock'
+    END WHERE id = ?");
+    $statusStmt->execute([$_POST['supply_id']]);
+    
+    $notifStmt = $pdo->prepare("INSERT INTO notifications (title, message, type) VALUES (?, ?, 'info')");
+    $notifStmt->execute(['📤 Stock Released', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' issued to ' . $_POST['issued_to']]);
+    
+    triggerStockUpdate('stock_out', $supply['supply_name'], $_POST['quantity']);
+    triggerRealtimeNotification('Stock Released', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' issued', 'warning');
+    
+    $pdo->commit();
+    
+    $_SESSION['flash_success'] = "Stock-Out recorded successfully";
+    header("Location: index.php?page=stock_out");
+    exit();
 }
 
 // Handle Stock-Out EDIT
@@ -63,47 +63,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $pdo->beginTransaction();
     
-        $oldStmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_out WHERE id = ?");
-        $oldStmt->execute([$_POST['id']]);
-        $oldData = $oldStmt->fetch();
-        
-        if (!$oldData) {
-            throw new Exception("Stock-out record not found");
-        }
-        
-        // Check if enough stock for the increase
-        if ($_POST['quantity'] > $oldData['quantity']) {
-            $extraNeeded = $_POST['quantity'] - $oldData['quantity'];
-            $checkStmt = $pdo->prepare("SELECT quantity FROM school_supplies WHERE id = ?");
-            $checkStmt->execute([$oldData['supply_id']]);
-            $currentStock = $checkStmt->fetch();
-            
-            if ($currentStock['quantity'] < $extraNeeded) {
-                throw new Exception("Insufficient stock for this update!");
-            }
-        }
-        
-        $stmt = $pdo->prepare("UPDATE stock_out SET quantity = ?, issued_to = ?, remarks = ? WHERE id = ?");
-        $stmt->execute([$_POST['quantity'], $_POST['issued_to'], $_POST['remarks'] ?? '', $_POST['id']]);
-        
-        $quantityDiff = $oldData['quantity'] - $_POST['quantity'];
-        $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
-        $updateStmt->execute([$quantityDiff, $oldData['supply_id']]);
-        
-        $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
-            WHEN quantity <= 0 THEN 'Out of Stock'
-            WHEN quantity <= low_stock_threshold THEN 'Low Stock'
-            ELSE 'In Stock'
-        END WHERE id = ?");
-        $statusStmt->execute([$oldData['supply_id']]);
-        
-        $pdo->commit();
-        
-        $_SESSION['flash_success'] = "Stock-Out updated successfully";
+    $oldStmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_out WHERE id = ?");
+    $oldStmt->execute([$_POST['id']]);
+    $oldData = $oldStmt->fetch();
+    
+    if (!$oldData) {
+        $pdo->rollBack();
+        $_SESSION['flash_error'] = "Stock-out record not found";
         header("Location: index.php?page=stock_out");
         exit();
+    }
+    
+    // Check if enough stock for the increase
+    if ($_POST['quantity'] > $oldData['quantity']) {
+        $extraNeeded = $_POST['quantity'] - $oldData['quantity'];
+        $checkStmt = $pdo->prepare("SELECT quantity FROM school_supplies WHERE id = ?");
+        $checkStmt->execute([$oldData['supply_id']]);
+        $currentStock = $checkStmt->fetch();
         
-  
+        if ($currentStock['quantity'] < $extraNeeded) {
+            $pdo->rollBack();
+            $_SESSION['flash_error'] = "Insufficient stock for this update!";
+            header("Location: index.php?page=stock_out");
+            exit();
+        }
+    }
+    
+    $stmt = $pdo->prepare("UPDATE stock_out SET quantity = ?, issued_to = ?, remarks = ? WHERE id = ?");
+    $stmt->execute([$_POST['quantity'], $_POST['issued_to'], $_POST['remarks'] ?? '', $_POST['id']]);
+    
+    $quantityDiff = $oldData['quantity'] - $_POST['quantity'];
+    $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
+    $updateStmt->execute([$quantityDiff, $oldData['supply_id']]);
+    
+    $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
+        WHEN quantity <= 0 THEN 'Out of Stock'
+        WHEN quantity <= low_stock_threshold THEN 'Low Stock'
+        ELSE 'In Stock'
+    END WHERE id = ?");
+    $statusStmt->execute([$oldData['supply_id']]);
+    
+    $pdo->commit();
+    
+    $_SESSION['flash_success'] = "Stock-Out updated successfully";
+    header("Location: index.php?page=stock_out");
+    exit();
 }
 
 // Handle Stock-Out DELETE
@@ -116,34 +120,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $pdo->beginTransaction();
     
+    $stmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_out WHERE id = ?");
+    $stmt->execute([$_POST['id']]);
+    $record = $stmt->fetch();
     
-        $stmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_out WHERE id = ?");
-        $stmt->execute([$_POST['id']]);
-        $record = $stmt->fetch();
+    if ($record) {
+        $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
+        $updateStmt->execute([$record['quantity'], $record['supply_id']]);
         
-        if ($record) {
-            $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
-            $updateStmt->execute([$record['quantity'], $record['supply_id']]);
-            
-            $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
-                WHEN quantity <= 0 THEN 'Out of Stock'
-                WHEN quantity <= low_stock_threshold THEN 'Low Stock'
-                ELSE 'In Stock'
-            END WHERE id = ?");
-            $statusStmt->execute([$record['supply_id']]);
-            
-            $deleteStmt = $pdo->prepare("DELETE FROM stock_out WHERE id = ?");
-            $deleteStmt->execute([$_POST['id']]);
-            
-            $pdo->commit();
-            
-            $_SESSION['flash_success'] = "Stock-Out record deleted and inventory adjusted";
-            header("Location: index.php?page=stock_out");
-            exit();
-        } else {
-            throw new Exception("Record not found");
-        }
-    
+        $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
+            WHEN quantity <= 0 THEN 'Out of Stock'
+            WHEN quantity <= low_stock_threshold THEN 'Low Stock'
+            ELSE 'In Stock'
+        END WHERE id = ?");
+        $statusStmt->execute([$record['supply_id']]);
+        
+        $deleteStmt = $pdo->prepare("DELETE FROM stock_out WHERE id = ?");
+        $deleteStmt->execute([$_POST['id']]);
+        
+        $pdo->commit();
+        
+        $_SESSION['flash_success'] = "Stock-Out record deleted and inventory adjusted";
+        header("Location: index.php?page=stock_out");
+        exit();
+    } else {
+        $pdo->rollBack();
+        $_SESSION['flash_error'] = "Record not found";
+        header("Location: index.php?page=stock_out");
+        exit();
+    }
 }
 
 // Get flash messages from session
