@@ -1,5 +1,5 @@
 <?php
-// File: index.php
+ob_start();
 require_once 'backend/database.php';
 
 if (!isLoggedIn()) {
@@ -170,3 +170,4 @@ if (file_exists($page_file)) {
 ?>
 
 <?php include 'frontend/includes/footer.php'; ?>
+<?php ob_end_flush(); ?>

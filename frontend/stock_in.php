@@ -1,34 +1,24 @@
 <?php
-ob_start(); // MUST be first thing
+// File: frontend/stock_in.php
+ob_start(); // Add output buffering at the top
 
-// File: frontend/stock_out.php
-
-// Handle Stock-Out ADD
+// Handle Stock-In ADD
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $_SESSION['flash_error'] = 'Invalid security token';
-        header("Location: index.php?page=stock_out");
+        header("Location: index.php?page=stock_in");
         exit();
     }
     
-    $transaction_no = 'SO-' . date('Ymd') . '-' . rand(1000, 9999);
+    $transaction_no = 'SI-' . date('Ymd') . '-' . rand(1000, 9999);
     
     $pdo->beginTransaction();
     
     
-        // Check if enough stock
-        $checkStmt = $pdo->prepare("SELECT quantity, supply_name FROM school_supplies WHERE id = ?");
-        $checkStmt->execute([$_POST['supply_id']]);
-        $supply = $checkStmt->fetch();
+        $stmt = $pdo->prepare("INSERT INTO stock_in (transaction_no, supply_id, supplier_id, quantity, remarks, received_by, date_received) VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
+        $stmt->execute([$transaction_no, $_POST['supply_id'], $_POST['supplier_id'], $_POST['quantity'], $_POST['notes'] ?? '', $_SESSION['user_id']]);
         
-        if ($supply['quantity'] < $_POST['quantity']) {
-            throw new Exception("Insufficient stock! Available: " . $supply['quantity']);
-        }
-        
-        $stmt = $pdo->prepare("INSERT INTO stock_out (transaction_no, supply_id, quantity, issued_to, remarks, issued_by, date_issued) VALUES (?, ?, ?, ?, ?, ?, CURDATE())");
-        $stmt->execute([$transaction_no, $_POST['supply_id'], $_POST['quantity'], $_POST['issued_to'], $_POST['remarks'] ?? '', $_SESSION['user_id']]);
-        
-        $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity - ? WHERE id = ?");
+        $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
         $updateStmt->execute([$_POST['quantity'], $_POST['supply_id']]);
         
         $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
@@ -38,55 +28,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         END WHERE id = ?");
         $statusStmt->execute([$_POST['supply_id']]);
         
-        $notifStmt = $pdo->prepare("INSERT INTO notifications (title, message, type) VALUES (?, ?, 'info')");
-        $notifStmt->execute(['📤 Stock Released', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' issued to ' . $_POST['issued_to']]);
+        $productStmt = $pdo->prepare("SELECT supply_name FROM school_supplies WHERE id = ?");
+        $productStmt->execute([$_POST['supply_id']]);
+        $supply = $productStmt->fetch();
         
-        triggerStockUpdate('stock_out', $supply['supply_name'], $_POST['quantity']);
-        triggerRealtimeNotification('Stock Released', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' issued', 'warning');
+        $notifStmt = $pdo->prepare("INSERT INTO notifications (title, message, type) VALUES (?, ?, 'success')");
+        $notifStmt->execute(['📦 Stock Received', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' added to inventory']);
+        
+        triggerStockUpdate('stock_in', $supply['supply_name'], $_POST['quantity']);
+        triggerRealtimeNotification('Stock Received', $_POST['quantity'] . ' units of ' . $supply['supply_name'] . ' added to inventory', 'success');
         
         $pdo->commit();
         
-        $_SESSION['flash_success'] = "Stock-Out recorded successfully";
-        header("Location: index.php?page=stock_out");
+        $_SESSION['flash_success'] = "Stock-In recorded successfully and inventory updated";
+        header("Location: index.php?page=stock_in");
         exit();
         
-
+   
 }
 
-// Handle Stock-Out EDIT
+// Handle Stock-In EDIT
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit') {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $_SESSION['flash_error'] = 'Invalid security token';
-        header("Location: index.php?page=stock_out");
+        header("Location: index.php?page=stock_in");
         exit();
     }
     
     $pdo->beginTransaction();
     
-        $oldStmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_out WHERE id = ?");
+    
+        $oldStmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_in WHERE id = ?");
         $oldStmt->execute([$_POST['id']]);
         $oldData = $oldStmt->fetch();
         
         if (!$oldData) {
-            throw new Exception("Stock-out record not found");
+            throw new Exception("Stock-in record not found");
         }
         
-        // Check if enough stock for the increase
-        if ($_POST['quantity'] > $oldData['quantity']) {
-            $extraNeeded = $_POST['quantity'] - $oldData['quantity'];
-            $checkStmt = $pdo->prepare("SELECT quantity FROM school_supplies WHERE id = ?");
-            $checkStmt->execute([$oldData['supply_id']]);
-            $currentStock = $checkStmt->fetch();
-            
-            if ($currentStock['quantity'] < $extraNeeded) {
-                throw new Exception("Insufficient stock for this update!");
-            }
-        }
+        $stmt = $pdo->prepare("UPDATE stock_in SET supplier_id = ?, quantity = ?, remarks = ? WHERE id = ?");
+        $stmt->execute([$_POST['supplier_id'], $_POST['quantity'], $_POST['notes'], $_POST['id']]);
         
-        $stmt = $pdo->prepare("UPDATE stock_out SET quantity = ?, issued_to = ?, remarks = ? WHERE id = ?");
-        $stmt->execute([$_POST['quantity'], $_POST['issued_to'], $_POST['remarks'] ?? '', $_POST['id']]);
-        
-        $quantityDiff = $oldData['quantity'] - $_POST['quantity'];
+        $quantityDiff = $_POST['quantity'] - $oldData['quantity'];
         $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
         $updateStmt->execute([$quantityDiff, $oldData['supply_id']]);
         
@@ -99,30 +82,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         
         $pdo->commit();
         
-        $_SESSION['flash_success'] = "Stock-Out updated successfully";
-        header("Location: index.php?page=stock_out");
+        $_SESSION['flash_success'] = "Stock-In updated successfully";
+        header("Location: index.php?page=stock_in");
         exit();
         
-  
+   
 }
 
-// Handle Stock-Out DELETE
+// Handle Stock-In DELETE
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $_SESSION['flash_error'] = 'Invalid security token';
-        header("Location: index.php?page=stock_out");
+        header("Location: index.php?page=stock_in");
         exit();
     }
     
     $pdo->beginTransaction();
     
     
-        $stmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_out WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT quantity, supply_id FROM stock_in WHERE id = ?");
         $stmt->execute([$_POST['id']]);
         $record = $stmt->fetch();
         
         if ($record) {
-            $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity + ? WHERE id = ?");
+            $updateStmt = $pdo->prepare("UPDATE school_supplies SET quantity = quantity - ? WHERE id = ?");
             $updateStmt->execute([$record['quantity'], $record['supply_id']]);
             
             $statusStmt = $pdo->prepare("UPDATE school_supplies SET status = CASE 
@@ -132,18 +115,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             END WHERE id = ?");
             $statusStmt->execute([$record['supply_id']]);
             
-            $deleteStmt = $pdo->prepare("DELETE FROM stock_out WHERE id = ?");
+            $deleteStmt = $pdo->prepare("DELETE FROM stock_in WHERE id = ?");
             $deleteStmt->execute([$_POST['id']]);
             
             $pdo->commit();
             
-            $_SESSION['flash_success'] = "Stock-Out record deleted and inventory adjusted";
-            header("Location: index.php?page=stock_out");
+            $_SESSION['flash_success'] = "Stock-In record deleted and inventory adjusted";
+            header("Location: index.php?page=stock_in");
             exit();
         } else {
             throw new Exception("Record not found");
         }
-    
+   
 }
 
 // Get flash messages from session
@@ -152,16 +135,22 @@ $error = $_SESSION['flash_error'] ?? '';
 unset($_SESSION['flash_success']);
 unset($_SESSION['flash_error']);
 
-// Fetch stock-out records with JOIN to get product names
-$stmt = $pdo->query("SELECT so.*, s.supply_name 
-                     FROM stock_out so 
-                     JOIN school_supplies s ON so.supply_id = s.id 
-                     ORDER BY so.created_at DESC");
-$stock_out_records = $stmt->fetchAll();
+// Fetch stock-in records
+$stmt = $pdo->query("SELECT si.*, s.supply_name, sup.name as supplier_name, u.fullname as staff_name 
+                     FROM stock_in si 
+                     JOIN school_supplies s ON si.supply_id = s.id 
+                     JOIN suppliers sup ON si.supplier_id = sup.id 
+                     JOIN users u ON si.received_by = u.id 
+                     ORDER BY si.created_at DESC");
+$stock_in_records = $stmt->fetchAll();
 
-// Fetch supplies for dropdown (only supplies with quantity > 0)
-$stmt = $pdo->query("SELECT id, supply_name, quantity FROM school_supplies WHERE quantity > 0 ORDER BY supply_name");
+// Fetch supplies for dropdown
+$stmt = $pdo->query("SELECT id, supply_name, quantity FROM school_supplies ORDER BY supply_name");
 $supplies = $stmt->fetchAll();
+
+// Fetch suppliers for dropdown
+$stmt = $pdo->query("SELECT id, name FROM suppliers WHERE is_active = 1 ORDER BY name");
+$suppliers = $stmt->fetchAll();
 ?>
 
 <!-- Include SweetAlert2 -->
@@ -170,9 +159,9 @@ $supplies = $stmt->fetchAll();
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>📤 Stock-Out Management</h4>
-        <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addStockOutModal">
-            <i class="bi bi-plus-lg"></i> Release Stock
+        <h4>📦 Stock-In Management</h4>
+        <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addStockInModal">
+            <i class="bi bi-plus-lg"></i> New Stock-In
         </button>
     </div>
     
@@ -192,51 +181,53 @@ $supplies = $stmt->fetchAll();
     
     <div class="data-table">
         <div class="p-3 d-flex justify-content-between gap-3">
-            <input type="text" id="searchStockOut" class="form-control w-50" placeholder="Search by ID, supply, or recipient...">
-            <button class="btn btn-outline-secondary" onclick="exportToCSV('stockOutTable', 'stock_out_report')">
+            <input type="text" id="searchStockIn" class="form-control w-50" placeholder="Search transactions by ID, product, or supplier...">
+            <button class="btn btn-outline-secondary" onclick="exportToCSV('stockInTable', 'stock_in_report')">
                 <i class="bi bi-download"></i> Export
             </button>
         </div>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover" id="stockOutTable">
+            <table class="table table-bordered table-hover" id="stockInTable">
                 <thead class="table-light">
                     <tr>
                         <th>TXN ID</th>
                         <th>SUPPLY</th>
-                        <th>QTY</th>
-                        <th>ISSUED TO</th>
+                        <th>SUPPLIER</th>
+                        <th>QTY ADDED</th>
                         <th>DATE</th>
-                        <th>REMARKS</th>
+                        <th>NOTES</th>
                         <th>ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($stock_out_records)): ?>
+                    <?php if (empty($stock_in_records)): ?>
                     <tr class="text-center">
                         <td colspan="7" class="py-5">
                             <i class="bi bi-inbox fs-1 text-muted"></i>
-                            <p class="text-muted mt-2">No stock-out records found</p>
+                            <p class="text-muted mt-2">No stock-in records found</p>
                         </td>
                     </tr>
                     <?php else: ?>
-                        <?php foreach ($stock_out_records as $record): ?>
+                        <?php foreach ($stock_in_records as $record): ?>
                         <tr id="row-<?php echo $record['id']; ?>">
                             <td class="fw-bold"><?php echo escape($record['transaction_no']); ?></td>
                             <td><?php echo escape($record['supply_name']); ?></td>
-                            <td class="text-center"><span class="badge bg-danger">-<?php echo number_format($record['quantity']); ?></span></td>
-                            <td><?php echo escape($record['issued_to']); ?></td>
-                            <td><?php echo date('Y-m-d', strtotime($record['date_issued'])); ?></td>
+                            <td><?php echo escape($record['supplier_name']); ?></td>
+                            <td class="text-center">
+                                <span class="badge bg-success">+<?php echo number_format($record['quantity']); ?></span>
+                            </td>
+                            <td><?php echo date('Y-m-d', strtotime($record['date_received'])); ?></td>
                             <td><?php echo escape($record['remarks'] ?? '-'); ?></td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-outline-primary edit-btn" 
                                         data-id="<?php echo $record['id']; ?>"
                                         data-supply-id="<?php echo $record['supply_id']; ?>"
                                         data-supply-name="<?php echo escape($record['supply_name']); ?>"
+                                        data-supplier-id="<?php echo $record['supplier_id']; ?>"
                                         data-quantity="<?php echo $record['quantity']; ?>"
-                                        data-issued-to="<?php echo escape($record['issued_to']); ?>"
-                                        data-remarks="<?php echo escape($record['remarks'] ?? ''); ?>"
+                                        data-notes="<?php echo escape($record['remarks'] ?? ''); ?>"
                                         data-bs-toggle="modal" 
-                                        data-bs-target="#editStockOutModal"
+                                        data-bs-target="#editStockInModal"
                                         title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </button>
@@ -257,13 +248,13 @@ $supplies = $stmt->fetchAll();
     </div>
 </div>
 
-<!-- Add Stock-Out Modal -->
-<div class="modal fade" id="addStockOutModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+<!-- Add Stock-In Modal -->
+<div class="modal fade" id="addStockInModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="POST" id="stockOutForm">
+            <form method="POST" id="stockInForm">
                 <div class="modal-header">
-                    <h5 class="modal-title">Release Stock</h5>
+                    <h5 class="modal-title">Record Stock-In</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -272,36 +263,41 @@ $supplies = $stmt->fetchAll();
                     
                     <div class="mb-3">
                         <label class="form-label">School Supply <span class="text-danger">*</span></label>
-                        <select name="supply_id" id="supplySelect" class="form-control" required>
+                        <select name="supply_id" class="form-control" id="supply_id" required>
                             <option value="">-- Select Supply --</option>
                             <?php foreach ($supplies as $supply): ?>
-                                <option value="<?php echo $supply['id']; ?>" data-qty="<?php echo $supply['quantity']; ?>">
-                                    <?php echo escape($supply['supply_name']); ?> (Available: <?php echo $supply['quantity']; ?>)
+                                <option value="<?php echo $supply['id']; ?>">
+                                    <?php echo escape($supply['supply_name']); ?> (Current: <?php echo $supply['quantity']; ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Quantity to Release <span class="text-danger">*</span></label>
-                        <input type="number" name="quantity" id="releaseQuantity" class="form-control" required min="1">
-                        <small class="text-muted" id="stockWarning"></small>
+                        <label class="form-label">Supplier <span class="text-danger">*</span></label>
+                        <select name="supplier_id" class="form-control" required>
+                            <option value="">-- Select Supplier --</option>
+                            <?php foreach ($suppliers as $supplier): ?>
+                                <option value="<?php echo $supplier['id']; ?>"><?php echo escape($supplier['name']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Issued To <span class="text-danger">*</span></label>
-                        <input type="text" name="issued_to" class="form-control" required placeholder="e.g., John Doe, IT Department, Grade 7-A">
+                        <label class="form-label">Quantity Added <span class="text-danger">*</span></label>
+                        <input type="number" name="quantity" class="form-control" required min="1" id="quantity">
+                        <small class="text-muted">Enter the number of units being added to inventory</small>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Remarks</label>
-                        <textarea name="remarks" class="form-control" rows="2" placeholder="Additional notes..."></textarea>
+                        <label class="form-label">Notes / Reference</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Optional: Purchase order #, invoice #, batch #, etc..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary-custom" id="submitBtn">
-                        <i class="bi bi-check-lg"></i> Release Stock
+                        <i class="bi bi-check-lg"></i> Record Stock-In
                     </button>
                 </div>
             </form>
@@ -309,13 +305,13 @@ $supplies = $stmt->fetchAll();
     </div>
 </div>
 
-<!-- Edit Stock-Out Modal -->
-<div class="modal fade" id="editStockOutModal" tabindex="-1">
+<!-- Edit Stock-In Modal -->
+<div class="modal fade" id="editStockInModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="POST" id="editStockOutForm">
+            <form method="POST" id="editStockInForm">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Stock-Out Record</h5>
+                    <h5 class="modal-title">Edit Stock-In Record</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -326,27 +322,34 @@ $supplies = $stmt->fetchAll();
                     <div class="mb-3">
                         <label class="form-label">School Supply</label>
                         <input type="text" class="form-control" id="edit_supply_name" disabled>
+                        <small class="text-muted">Supply cannot be changed</small>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Quantity Released <span class="text-danger">*</span></label>
-                        <input type="number" name="quantity" id="edit_quantity" class="form-control" required min="1">
+                        <label class="form-label">Supplier <span class="text-danger">*</span></label>
+                        <select name="supplier_id" class="form-control" id="edit_supplier_id" required>
+                            <option value="">-- Select Supplier --</option>
+                            <?php foreach ($suppliers as $supplier): ?>
+                                <option value="<?php echo $supplier['id']; ?>"><?php echo escape($supplier['name']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Issued To <span class="text-danger">*</span></label>
-                        <input type="text" name="issued_to" id="edit_issued_to" class="form-control" required>
+                        <label class="form-label">Quantity Added <span class="text-danger">*</span></label>
+                        <input type="number" name="quantity" class="form-control" id="edit_quantity" required min="1">
+                        <small class="text-muted">Update the quantity. Inventory will be adjusted automatically.</small>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Remarks</label>
-                        <textarea name="remarks" id="edit_remarks" class="form-control" rows="2"></textarea>
+                        <label class="form-label">Notes / Reference</label>
+                        <textarea name="notes" class="form-control" id="edit_notes" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary-custom" id="editSubmitBtn">
-                        <i class="bi bi-check-lg"></i> Update Stock-Out
+                        <i class="bi bi-check-lg"></i> Update Stock-In
                     </button>
                 </div>
             </form>
@@ -355,53 +358,32 @@ $supplies = $stmt->fetchAll();
 </div>
 
 <script>
-// Stock validation
-const supplySelect = document.getElementById('supplySelect');
-const releaseQuantity = document.getElementById('releaseQuantity');
-const stockWarning = document.getElementById('stockWarning');
-
-function validateStock() {
-    const selectedOption = supplySelect?.options[supplySelect.selectedIndex];
-    const availableQty = selectedOption?.dataset?.qty || 0;
-    const qtyToRelease = parseInt(releaseQuantity?.value) || 0;
-    
-    if (qtyToRelease > availableQty) {
-        stockWarning.innerHTML = `<span class="text-danger">❌ Insufficient stock! Only ${availableQty} available.</span>`;
-        return false;
-    } else if (qtyToRelease <= 0) {
-        stockWarning.innerHTML = `<span class="text-warning">⚠️ Please enter a valid quantity.</span>`;
-        return false;
-    } else {
-        stockWarning.innerHTML = `<span class="text-success">✅ Stock available: ${availableQty}</span>`;
-        return true;
-    }
-}
-
-if (supplySelect) supplySelect.addEventListener('change', validateStock);
-if (releaseQuantity) releaseQuantity.addEventListener('input', validateStock);
-
-// Search functionality
-document.getElementById('searchStockOut')?.addEventListener('keyup', function() {
-    const searchTerm = this.value.toLowerCase();
-    const rows = document.querySelectorAll('#stockOutTable tbody tr');
-    rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(searchTerm) ? '' : 'none';
+// Edit modal - populate fields
+const editModal = document.getElementById('editStockInModal');
+if (editModal) {
+    editModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        document.getElementById('edit_id').value = button.getAttribute('data-id');
+        document.getElementById('edit_supply_name').value = button.getAttribute('data-supply-name');
+        document.getElementById('edit_supplier_id').value = button.getAttribute('data-supplier-id');
+        document.getElementById('edit_quantity').value = button.getAttribute('data-quantity');
+        document.getElementById('edit_notes').value = button.getAttribute('data-notes');
     });
-});
+}
 
 // Delete confirmation
 function showDeleteConfirmModal(id, name, supplyName) {
     Swal.fire({
-        title: 'Delete Stock-Out Record?',
+        title: 'Delete Stock-In Record?',
         html: `Are you sure you want to delete <strong>${name}</strong>?<br><br>
-               <span class="text-danger">⚠️ Warning: This will add the quantity back to inventory!</span><br>
+               <span class="text-danger">⚠️ Warning: This will remove the added quantity from inventory!</span><br>
                <small>Supply: ${supplyName}</small>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#6366f1',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
     }).then((result) => {
         if (result.isConfirmed) {
             const form = document.createElement('form');
@@ -421,30 +403,40 @@ function showDeleteConfirmModal(id, name, supplyName) {
 document.querySelectorAll('.delete-btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
         e.preventDefault();
-        showDeleteConfirmModal(this.dataset.id, this.dataset.name, this.dataset.supply);
+        const id = this.getAttribute('data-id');
+        const name = this.getAttribute('data-name');
+        const supplyName = this.getAttribute('data-supply');
+        showDeleteConfirmModal(id, name, supplyName);
     });
 });
 
-// Edit modal population
-const editModal = document.getElementById('editStockOutModal');
-if (editModal) {
-    editModal.addEventListener('show.bs.modal', function(event) {
-        const btn = event.relatedTarget;
-        document.getElementById('edit_id').value = btn.dataset.id;
-        document.getElementById('edit_supply_name').value = btn.dataset.supplyName;
-        document.getElementById('edit_quantity').value = btn.dataset.quantity;
-        document.getElementById('edit_issued_to').value = btn.dataset.issuedTo;
-        document.getElementById('edit_remarks').value = btn.dataset.remarks || '';
+// Search functionality
+document.getElementById('searchStockIn')?.addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#stockInTable tbody tr');
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
     });
-}
+});
 
-// Form submission handlers
-document.getElementById('stockOutForm')?.addEventListener('submit', function(e) {
-    if (!validateStock()) {
+// Form submission
+document.getElementById('stockInForm')?.addEventListener('submit', function(e) {
+    const supply = document.getElementById('supply_id').value;
+    const quantity = document.getElementById('quantity').value;
+    
+    if (!supply) {
         e.preventDefault();
-        Swal.fire({ icon: 'error', title: 'Insufficient Stock', text: 'Please check the available quantity!' });
+        Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please select a supply' });
         return false;
     }
+    
+    if (!quantity || quantity < 1) {
+        e.preventDefault();
+        Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please enter a valid quantity' });
+        return false;
+    }
+    
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
     submitBtn.disabled = true;

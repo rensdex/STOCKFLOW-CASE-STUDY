@@ -3,6 +3,7 @@ if (!isset($skip_auth_check) && !isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit();
 }
+
 $current_page = basename($_SERVER['PHP_SELF']);
 
 $base_path = ''; 
