@@ -70,7 +70,9 @@ unset($_SESSION['login_error']);
 <body>
     <div class="login-card">
         <div class="login-header">
-            <h1>📚 School Supply</h1>
+            <img src="frontend/assets/images/logo3.png" alt="logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">
+
+            <h1> Stock Flow</h1>
             <h3 class="mt-2">Inventory System</h3>
             <p>Manage and track school supplies efficiently</p>
         </div>
@@ -83,17 +85,15 @@ unset($_SESSION['login_error']);
             <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
             <div class="mb-3">
                 <label class="form-label">Username or Email</label>
-                <input type="text" name="username" class="form-control" required placeholder="admin" value="admin">
+                <input type="text" name="username" class="form-control" required placeholder="" value="">
             </div>
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" required placeholder="••••••" value="admin123">
+                <input type="password" name="password" class="form-control" required placeholder="" value="">
             </div>
             <button type="submit" class="btn-login">Sign In</button>
         </form>
-        <div class="text-center mt-3">
-            <small class="text-muted">Demo: admin / admin123</small>
-        </div>
+       
     </div>
 </body>
 </html>

@@ -145,6 +145,7 @@ $base_path = '';
             <div class="logo-wrapper">
                 <div class="sidebar-brand">
                     <h3>
+                        
                         <span class="stock">STOCK</span><span class="flow">FLOW</span>
                     </h3>
                 </div>
