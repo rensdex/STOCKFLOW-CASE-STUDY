@@ -164,9 +164,9 @@ $totalIssued = $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM stock_out")->f
         </div>
         <div class="col-md-4">
             <div class="stat-card text-center">
-                <i class="bi bi-arrow-up-circle fs-1 text-warning"></i>
-                <h5 class="mt-2">Issue Stock</h5>
-                <a href="index.php?page=stock_out" class="btn btn-warning btn-sm mt-2">Issue to Students</a>
+                 <i class="bi bi-box-seam fs-1 text-secondary"></i>
+                <h5 class="mt-2">Inventory</h5>
+                <a href="inventory.php?page=inventory" class="btn btn-secondary btn-sm mt-2">View</a>
             </div>
         </div>
     </div>
