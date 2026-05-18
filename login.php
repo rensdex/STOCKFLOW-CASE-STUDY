@@ -491,7 +491,7 @@ unset($_SESSION['login_error']);
                             <label class="form-label">Email Address / Username</label>
                             <div class="input-group-custom">
                                 <i class="bi bi-envelope-fill input-icon"></i>
-                                <input type="text" name="username" class="form-control-custom" required placeholder="Enter your email " >
+                                <input type="text" name="username" class="form-control-custom" required placeholder="Enter your email or username" >
                             </div>
                         </div>
                         
