@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 17, 2026 at 10:13 AM
+-- Generation Time: May 18, 2026 at 02:04 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -189,7 +189,14 @@ INSERT INTO `audit_logs` (`id`, `log_id`, `user_id`, `action`, `module`, `detail
 (81, 'LOG-20260517-4685', NULL, 'UPDATE', 'School Supplies', 'Supply \"A4 Spiral Notebook (80 leaves)\" changed: Qty 250→251, Price 45.00→45.00', NULL, '2026-05-17 08:05:21'),
 (82, 'LOG-20260517-7515', NULL, 'UPDATE', 'School Supplies', 'Supply \"A4 Bond Paper (500 sheets)\" changed: Qty 139→135, Price 220.00→220.00', NULL, '2026-05-17 08:09:02'),
 (83, 'LOG-20260517-1842', NULL, 'UPDATE', 'School Supplies', 'Supply \"#2 Pencil (Box of 12)\" changed: Qty 10→30, Price 60.00→60.00', NULL, '2026-05-17 08:09:50'),
-(84, 'LOG-20260517-7213', NULL, 'UPDATE', 'School Supplies', 'Supply \"#2 Pencil (Box of 12)\" changed: Qty 30→60, Price 60.00→60.00', NULL, '2026-05-17 08:10:54');
+(84, 'LOG-20260517-7213', NULL, 'UPDATE', 'School Supplies', 'Supply \"#2 Pencil (Box of 12)\" changed: Qty 30→60, Price 60.00→60.00', NULL, '2026-05-17 08:10:54'),
+(85, 'LOG-20260517-1621', NULL, 'UPDATE', 'School Supplies', 'Supply \"#2 Pencil (Box of 12)\" changed: Qty 60→50, Price 60.00→60.00', NULL, '2026-05-17 12:16:30'),
+(86, 'LOG-20260517-8043', NULL, 'UPDATE', 'School Supplies', 'Supply \"#2 Pencil (Box of 12)\" changed: Qty 50→60, Price 60.00→60.00', NULL, '2026-05-17 12:17:44'),
+(87, 'LOG-20260518-5553', NULL, 'UPDATE', 'School Supplies', 'Supply \"panda ballpen\" changed: Qty 40→40, Price 15.00→10.00', NULL, '2026-05-18 04:27:03'),
+(88, 'LOG-20260518-7056', NULL, 'UPDATE', 'School Supplies', 'Supply \"panda ballpen\" changed: Qty 40→60, Price 10.00→10.00', NULL, '2026-05-18 04:28:13'),
+(89, 'LOG-20260518-6015', NULL, 'UPDATE', 'School Supplies', 'Supply \"panda ballpen\" changed: Qty 60→5, Price 10.00→10.00', NULL, '2026-05-18 04:29:34'),
+(90, 'LOG-20260518-3307', NULL, 'UPDATE', 'School Supplies', 'Supply \"panda ballpen\" changed: Qty 5→60, Price 10.00→10.00', NULL, '2026-05-18 04:31:29'),
+(91, 'LOG-20260518-4043', NULL, 'UPDATE', 'School Supplies', 'Supply \"panda ballpen\" changed: Qty 60→5, Price 10.00→10.00', NULL, '2026-05-18 04:31:52');
 
 -- --------------------------------------------------------
 
@@ -216,8 +223,7 @@ INSERT INTO `categories` (`id`, `name`, `description`, `is_active`, `created_at`
 (4, 'Paper Products', 'Bond paper, colored paper, construction paper', 1, '2026-05-17 06:08:44'),
 (5, 'Folders & Binders', 'Clear books, expandable folders, ring binders', 1, '2026-05-17 06:08:44'),
 (6, 'Mathematics Tools', 'Rulers, protractors, compass, calculators', 1, '2026-05-17 06:08:44'),
-(7, 'Classroom Supplies', 'Whiteboard markers, erasers, chalk, tape', 1, '2026-05-17 06:08:44'),
-(8, 'Technology', 'USB drives, headphones, mouse, keyboard', 1, '2026-05-17 06:08:44');
+(7, 'Classroom Supplies', 'Whiteboard markers, erasers, chalk, tape', 1, '2026-05-17 06:08:44');
 
 -- --------------------------------------------------------
 
@@ -329,7 +335,17 @@ INSERT INTO `notifications` (`id`, `title`, `message`, `type`, `is_read`, `creat
 (88, '📦 Stock Received', NULL, 'success', 0, '2026-05-17 08:09:50'),
 (89, '📦 Stock Received', '20 units of #2 Pencil (Box of 12) added to inventory', 'success', 0, '2026-05-17 08:09:50'),
 (90, '📦 Stock Received', NULL, 'success', 0, '2026-05-17 08:10:54'),
-(91, '📦 Stock Received', '30 units of #2 Pencil (Box of 12) added to inventory', 'success', 0, '2026-05-17 08:10:54');
+(91, '📦 Stock Received', '30 units of #2 Pencil (Box of 12) added to inventory', 'success', 0, '2026-05-17 08:10:54'),
+(92, '📤 Stock Released', '10 units of #2 Pencil (Box of 12) issued to karl', 'info', 0, '2026-05-17 12:16:30'),
+(93, '📦 Stock Received', NULL, 'success', 0, '2026-05-17 12:17:44'),
+(94, '📦 Stock Received', '10 units of #2 Pencil (Box of 12) added to inventory', 'success', 0, '2026-05-17 12:17:44'),
+(95, '📦 Stock Received', NULL, 'success', 0, '2026-05-18 04:28:13'),
+(96, '📦 Stock Received', '20 units of panda ballpen added to inventory', 'success', 0, '2026-05-18 04:28:13'),
+(97, '📤 Stock Released', '55 units of panda ballpen issued to carlo', 'info', 0, '2026-05-18 04:29:34'),
+(98, '⚠️ Low Stock Alert', NULL, 'warning', 0, '2026-05-18 04:31:29'),
+(99, '📦 Stock Received', NULL, 'success', 0, '2026-05-18 04:31:29'),
+(100, '📦 Stock Received', '55 units of panda ballpen added to inventory', 'success', 0, '2026-05-18 04:31:29'),
+(101, '📤 Stock Released', '55 units of panda ballpen issued to karl', 'info', 0, '2026-05-18 04:31:52');
 
 -- --------------------------------------------------------
 
@@ -361,7 +377,7 @@ INSERT INTO `school_supplies` (`id`, `supply_code`, `supply_name`, `category_id`
 (1, 'NB-001', 'A4 Spiral Notebook (80 leaves)', 1, 1, 251, 45.00, '80 leaves, ruled, A4 size', 'In Stock', 30, 'Cabinet A1', '2026-05-17 06:08:44', '2026-05-17 08:05:21'),
 (2, 'NB-002', 'Composition Notebook (100 leaves)', 1, 1, 180, 55.00, '100 leaves, ruled, with cover', 'In Stock', 25, 'Cabinet A2', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
 (6, 'PEN-003', 'Red Ballpoint Pen', 2, 2, 350, 8.00, 'For checking and corrections', 'In Stock', 50, 'Cabinet B1', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
-(7, 'PEN-004', '#2 Pencil (Box of 12)', 2, 1, 60, 60.00, '12 pieces per box', 'In Stock', 10, 'Cabinet B2', '2026-05-17 06:08:44', '2026-05-17 08:10:54'),
+(7, 'PEN-004', '#2 Pencil (Box of 12)', 2, 1, 60, 60.00, '12 pieces per box', 'In Stock', 10, 'Cabinet B2', '2026-05-17 06:08:44', '2026-05-17 12:17:44'),
 (8, 'PEN-005', 'Mechanical Pencil (0.7mm)', 2, 3, 120, 35.00, 'With eraser and refills', 'In Stock', 20, 'Cabinet B2', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
 (9, 'PEN-006', 'Highlighter Set (4 colors)', 2, 1, 80, 120.00, 'Neon colors, chisel tip', 'In Stock', 15, 'Cabinet B3', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
 (10, 'ART-001', 'Crayon Set (24 colors)', 3, 4, 60, 95.00, 'Non-toxic, vibrant colors', 'In Stock', 10, 'Cabinet C1', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
@@ -378,8 +394,7 @@ INSERT INTO `school_supplies` (`id`, `supply_code`, `supply_name`, `category_id`
 (21, 'CLASS-001', 'Whiteboard Marker (Set of 4)', 7, 1, 85, 120.00, 'Black, blue, red, green', 'In Stock', 15, 'Cabinet G1', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
 (22, 'CLASS-002', 'Whiteboard Eraser', 7, 3, 50, 45.00, 'Felt pad, magnetic', 'In Stock', 10, 'Cabinet G1', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
 (23, 'CLASS-003', 'Masking Tape (1 inch)', 7, 2, 200, 30.00, 'For arts and labeling', 'In Stock', 40, 'Cabinet G2', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
-(24, 'TECH-001', 'USB Flash Drive (32GB)', 8, 4, 35, 350.00, 'For teacher use', 'In Stock', 8, 'Cabinet H1', '2026-05-17 06:08:44', '2026-05-17 06:08:44'),
-(25, 'TECH-002', 'Over-ear Headphones', 8, 4, 25, 550.00, 'For computer lab', 'In Stock', 5, 'Cabinet H2', '2026-05-17 06:08:44', '2026-05-17 06:08:44');
+(26, 'SP-3440', 'panda ballpen', 3, 1, 5, 10.00, '', 'Low Stock', 5, 'cabinet B6', '2026-05-18 04:26:16', '2026-05-18 04:31:52');
 
 --
 -- Triggers `school_supplies`
@@ -464,7 +479,10 @@ INSERT INTO `stock_in` (`id`, `transaction_no`, `supply_id`, `supplier_id`, `qua
 (36, 'SI-20260517-6909', 7, 4, 5, NULL, NULL, '', 1, '2026-05-17', '2026-05-17 08:00:15'),
 (37, 'SI-20260517-8856', 7, 4, 5, NULL, NULL, '', 1, '2026-05-17', '2026-05-17 08:04:52'),
 (38, 'SI-20260517-9443', 7, 1, 20, NULL, NULL, '', 1, '2026-05-17', '2026-05-17 08:09:50'),
-(39, 'SI-20260517-8278', 7, 4, 30, NULL, NULL, '', 1, '2026-05-17', '2026-05-17 08:10:54');
+(39, 'SI-20260517-8278', 7, 4, 30, NULL, NULL, '', 1, '2026-05-17', '2026-05-17 08:10:54'),
+(40, 'SI-20260517-8475', 7, 4, 10, NULL, NULL, '', 1, '2026-05-17', '2026-05-17 12:17:44'),
+(41, 'SI-20260518-4271', 26, 4, 20, NULL, NULL, '', 4, '2026-05-18', '2026-05-18 04:28:13'),
+(42, 'SI-20260518-1511', 26, 4, 55, NULL, NULL, '', 4, '2026-05-18', '2026-05-18 04:31:29');
 
 --
 -- Triggers `stock_in`
@@ -555,7 +573,10 @@ INSERT INTO `stock_out` (`id`, `transaction_no`, `supply_id`, `quantity`, `issue
 (43, 'SO-20260517-7158', 7, 5, 'karl', '', 1, '2026-05-17', '2026-05-17 08:03:05'),
 (44, 'SO-20260517-3656', 7, 5, 'karl', '', 1, '2026-05-17', '2026-05-17 08:03:14'),
 (45, 'SO-20260517-7189', 7, 5, 'karl', '', 1, '2026-05-17', '2026-05-17 08:04:31'),
-(46, 'SO-20260517-5962', 14, 4, 'karl', 'dwa', 1, '2026-05-17', '2026-05-17 08:09:02');
+(46, 'SO-20260517-5962', 14, 4, 'karl', 'dwa', 1, '2026-05-17', '2026-05-17 08:09:02'),
+(47, 'SO-20260517-7135', 7, 10, 'karl', 'ss', 1, '2026-05-17', '2026-05-17 12:16:30'),
+(48, 'SO-20260518-6064', 26, 55, 'carlo', '', 4, '2026-05-18', '2026-05-18 04:29:34'),
+(49, 'SO-20260518-3512', 26, 55, 'karl', '', 4, '2026-05-18', '2026-05-18 04:31:52');
 
 --
 -- Triggers `stock_out`
@@ -599,10 +620,10 @@ CREATE TABLE `suppliers` (
 --
 
 INSERT INTO `suppliers` (`id`, `name`, `contact_person`, `email`, `phone`, `address`, `is_active`, `created_at`) VALUES
-(1, 'National Book Store', 'Ramon Dela Cruz', 'ramon@nationalbookstore.com', '02-8888-1234', 'Quezon Citye', 1, '2026-05-17 06:08:44'),
-(2, 'Office Warehouse', 'Lisa Santos', 'lisa@officewarehouse.com', '02-8888-5678', 'Pasig City', 1, '2026-05-17 06:08:44'),
-(3, 'School Supply Depot', 'Mike Reyes', 'mike@ssdepot.com', '02-8888-9012', 'Manila', 1, '2026-05-17 06:08:44'),
-(4, 'Art Central', 'Ana Garcia', 'ana@artcentral.com', '02-8888-3456', 'Makati City', 1, '2026-05-17 06:08:44');
+(1, 'National Book Store', 'Lawrence Saturno', 'lawrence@gmail.com', '09578755212', 'Cabanatuan City', 1, '2026-05-17 06:08:44'),
+(2, 'Office Warehouse', 'Kin Montemayor', 'kinmotemayor@gmail.com', '09460765372', 'Pasig City', 1, '2026-05-17 06:08:44'),
+(3, 'School Supply Depot', 'Ahron Reyes', 'ahroneyes@gmail.com', '09741747651', 'Manila', 1, '2026-05-17 06:08:44'),
+(4, 'Art Central', 'John Carlo', 'jcsalagsag@gmail.com', '09111111111', 'Makati City', 1, '2026-05-17 06:08:44');
 
 -- --------------------------------------------------------
 
@@ -627,10 +648,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `fullname`, `email`, `password`, `role`, `is_active`, `last_login`, `created_at`) VALUES
-(1, 'admin', 'School Administrator', 'admin@school.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 1, '2026-05-17 15:56:20', '2026-05-17 06:08:44'),
-(2, 'staff2', 'Maria Santos', 'maria.santos@school.edu', '$2y$10$H9E4bfaTOynVlP0/nrsF5e2oOChqrfiIihvz5lhVbNM5juvHKX4.6', 'Staff', 1, NULL, '2026-05-17 06:08:44'),
-(3, 'staff1', 'John Cruz', 'john.cruz@school.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Staff', 1, '2026-05-17 14:48:48', '2026-05-17 06:08:44'),
-(4, 'karl.nico.soniga', 'karl nico soniga', 'karlnicosoniga@gmail.com', '$2y$10$dXJ8jWFbeP9Y3qZSb5wU0e8uX4tRm3rccl18kR7rcz.nEu4Ph.ww.', 'Administrator', 1, NULL, '2026-05-17 06:48:25');
+(1, 'admin', 'ADMIN', 'admin@school.edu', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 1, '2026-05-17 15:56:20', '2026-05-17 06:08:44'),
+(2, 'staff2', 'carlo aquino', 'carlo@gmaill.com', '$2y$10$H9E4bfaTOynVlP0/nrsF5e2oOChqrfiIihvz5lhVbNM5juvHKX4.6', 'Staff', 1, NULL, '2026-05-17 06:08:44'),
+(3, 'staff1', 'John salagsag', 'johnsalagsag@yahoo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Staff', 1, '2026-05-17 14:48:48', '2026-05-17 06:08:44'),
+(4, 'karl.nico.soniga', 'karl nico soniga', 'karlnicosoniga@gmail.com', '$2y$10$dXJ8jWFbeP9Y3qZSb5wU0e8uX4tRm3rccl18kR7rcz.nEu4Ph.ww.', 'Administrator', 1, '2026-05-18 19:23:01', '2026-05-17 06:48:25'),
+(5, 'lucas', 'lucas', 'lucas@gmail.com', '$2y$10$Tl07mn5LlCSZfqjmqIlUPuQOvxQjpdodQjgejrKR3tIG86/dlxHIG', 'Staff', 1, '2026-05-18 12:33:59', '2026-05-18 04:33:31');
 
 --
 -- Indexes for dumped tables
@@ -706,7 +728,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -718,25 +740,25 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT for table `school_supplies`
 --
 ALTER TABLE `school_supplies`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `stock_in`
 --
 ALTER TABLE `stock_in`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `stock_out`
 --
 ALTER TABLE `stock_out`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `suppliers`
@@ -748,7 +770,7 @@ ALTER TABLE `suppliers`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
