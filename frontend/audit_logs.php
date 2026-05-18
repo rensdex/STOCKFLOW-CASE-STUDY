@@ -3,7 +3,7 @@ if (!isLoggedIn() || $_SESSION['role'] !== 'Administrator') {
     die('<div style="text-align: center; padding: 50px;"><h1 style="color: #ef4444;">🚫 Access Denied</h1><p>You do not have permission to access this page.</p><a href="index.php?page=dashboard">← Back to Dashboard</a></div>');
 }
 
-// Fetch audit logs with correct column names
+// Fetch audit logs
 $stmt = $pdo->query("SELECT al.*, u.fullname as user_name 
                      FROM audit_logs al 
                      LEFT JOIN users u ON al.user_id = u.id 
@@ -82,7 +82,7 @@ document.getElementById('searchLog')?.addEventListener('keyup', function() {
     });
 });
 
-// Auto-refresh every 30 seconds (optional)
+// Auto-refresh every 30 seconds 
 setInterval(function() {
     location.reload();
 }, 30000);

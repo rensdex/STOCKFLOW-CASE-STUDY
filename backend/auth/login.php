@@ -1,5 +1,5 @@
 <?php
-// File: backend/auth/login.php
+
 require_once '../database.php';
 
 if (isLoggedIn()) {
@@ -14,8 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $username = filter_var($_POST['username'] ?? '', FILTER_SANITIZE_STRING);
     $password = $_POST['password'] ?? '';
-    
-    // Fixed: Use correct table structure from school_supply_db
+   
     $stmt = $pdo->prepare("SELECT * FROM users WHERE (username = ? OR email = ?) AND is_active = 1");
     $stmt->execute([$username, $username]);
     $user = $stmt->fetch();
@@ -23,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
-        $_SESSION['name'] = $user['fullname'];  // Fixed: Use fullname for display
+        $_SESSION['name'] = $user['fullname'];  
         $_SESSION['role'] = $user['role'];
         
         $stmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");

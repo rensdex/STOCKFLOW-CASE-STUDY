@@ -1,7 +1,6 @@
 <?php
-// File: backend/database.php
 
-// Start session if not already started
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -9,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Database configuration
 define('DB_HOST', 'localhost');
 define('DB_PORT', '3306');
-define('DB_NAME', 'school_supply_db');  // Fixed: Use correct database name
+define('DB_NAME', 'school_supply_db');  
 define('DB_USERNAME', 'root');
 define('DB_PASSWORD', '');
 
@@ -55,9 +54,6 @@ function escape($string) {
     return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
 
-// ============================================
-// PUSHER REAL-TIME FUNCTIONS (Fixed for school_supplies)
-// ============================================
 
 $pusher = null;
 

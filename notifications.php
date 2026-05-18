@@ -1,5 +1,5 @@
 <?php
-// File: notifications.php
+
 if (!isLoggedIn()) {
     redirect('index.php?page=dashboard');
 }

@@ -18,14 +18,14 @@ $stats['total_value'] = $stmt->fetch()['total'] ?? 0;
 $stmt = $pdo->query("SELECT COUNT(*) as total FROM suppliers WHERE is_active = 1");
 $stats['total_suppliers'] = $stmt->fetch()['total'];
 
-// Recent Stock-In - Fixed column names
+// Recent Stock-In 
 $stmt = $pdo->query("SELECT si.*, s.supply_name 
                      FROM stock_in si 
                      JOIN school_supplies s ON si.supply_id = s.id 
                      ORDER BY si.created_at DESC LIMIT 5");
 $recent_stock_in = $stmt->fetchAll();
 
-// Recent Stock-Out - Fixed column names
+// Recent Stock-Out 
 $stmt = $pdo->query("SELECT so.*, s.supply_name 
                      FROM stock_out so 
                      JOIN school_supplies s ON so.supply_id = s.id 

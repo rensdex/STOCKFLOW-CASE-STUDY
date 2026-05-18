@@ -1,7 +1,7 @@
 <?php
-ob_start(); // MUST be first thing
+ob_start();
 
-// File: frontend/stock_out.php
+
 
 // Handle Stock-Out ADD
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {

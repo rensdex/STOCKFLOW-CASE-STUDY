@@ -1,6 +1,6 @@
 <?php
-// File: frontend/stock_in.php
-ob_start(); // Add output buffering at the top
+
+ob_start(); //for header issue 
 
 // Handle Stock-In ADD
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {

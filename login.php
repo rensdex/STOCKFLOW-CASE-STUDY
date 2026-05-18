@@ -491,7 +491,7 @@ unset($_SESSION['login_error']);
                             <label class="form-label">Email Address / Username</label>
                             <div class="input-group-custom">
                                 <i class="bi bi-envelope-fill input-icon"></i>
-                                <input type="text" name="username" class="form-control-custom" required placeholder="Enter your email or username" value="maria.cruz@corp.ph">
+                                <input type="text" name="username" class="form-control-custom" required placeholder="Enter your email or username" >
                             </div>
                         </div>
                         
@@ -499,7 +499,7 @@ unset($_SESSION['login_error']);
                             <label class="form-label">Password</label>
                             <div class="input-group-custom">
                                 <i class="bi bi-lock-fill input-icon"></i>
-                                <input type="password" name="password" id="password" class="form-control-custom" required placeholder="Enter your password" value="password">
+                                <input type="password" name="password" id="password" class="form-control-custom" required placeholder="Enter your password" >
                                 <button type="button" class="password-toggle" onclick="togglePassword()">
                                     <i class="bi bi-eye-slash-fill" id="toggleIcon"></i>
                                 </button>
